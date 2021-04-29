@@ -32,6 +32,7 @@ import jwt
 import json
 from courses.serializers import CourseSerializer
 from itertools import chain
+import logging
 
 
 class AdvisingView(RedirectToJHUSignupMixin, FeatureFlowView):
@@ -220,6 +221,7 @@ class RegisteredCoursesView(ValidateSubdomainMixin, APIView):
 
         context = {'school': school, 'semester': semester, 'student': student}
         if tt_id:
+            logger = logging.log(tt_id)
             timetable = get_object_or_404(
                 PersonalTimetable,
                 student=student, id=tt_id,
