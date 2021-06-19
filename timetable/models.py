@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (C) 2017 Semester.ly Technologies, LLC
 #
 # Semester.ly is free software: you can redistribute it and/or modify
@@ -165,6 +166,9 @@ class Course(models.Model):
         ratings = Evaluation.objects.only('course', 'score').filter(course=self)
         return sum([rating.score for rating in ratings]), len(ratings)
 
+    def __unicode__(self):
+        return u'%s' % (self.name)
+
 
 class Section(models.Model):
     """
@@ -207,6 +211,7 @@ class Section(models.Model):
     semester = models.ForeignKey(Semester)
     textbooks = models.ManyToManyField(Textbook, through='TextbookLink')
     was_full = models.BooleanField(default=False)
+    course_section_id = models.IntegerField(default=0)
 
     def get_textbooks(self):
         """ Returns the textbook info using `tb.get_info()` for each textbook """
@@ -216,8 +221,10 @@ class Section(models.Model):
         return self.enrolment >= 0 and self.size >= 0 and self.enrolment >= self.size
 
     def __str__(self):
-        return "Course: {0}; Section: {0}; Semester: {0}".format(self.course, self.meeting_section,
-                                                                 self.semester)
+        return "Course: {0}; Section: {0}; Semester: {0}".format(self.course, self.meeting_section, self.semester)
+
+    def __unicode__(self):
+        return "Course: %s; Section: %s; Semester: %s" % (self.course, self.meeting_section, self.semester)
 
 
 class Offering(models.Model):
@@ -240,9 +247,12 @@ class Offering(models.Model):
     """
     section = models.ForeignKey(Section)
     day = models.CharField(max_length=1)
+    date_start = models.CharField(max_length=15, null=True)
+    date_end = models.CharField(max_length=15, null=True)
     time_start = models.CharField(max_length=15)
     time_end = models.CharField(max_length=15)
     location = models.CharField(max_length=200, default='TBA')
+    is_short_course = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "Day: %s, Time: %s - %s" % (self.day, self.time_start, self.time_end)

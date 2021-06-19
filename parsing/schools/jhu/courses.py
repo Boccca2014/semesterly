@@ -113,7 +113,8 @@ class Parser(BaseParser):
         return (section_size, section_enrolment, waitlist)
 
     def _load_ingestor(self, school, course, section):
-        self.ingestor['sub_school'] = school;
+        self.ingestor['sub_school'] = school
+        self.ingestor['course_section_id'] = section[0]['SSS_SectionsID']
         section_details = section[0]['SectionDetails']
         try:
             num_credits = float(course['Credits'])
@@ -183,6 +184,11 @@ class Parser(BaseParser):
             created_section = self.ingestor.ingest_section(created_course)
 
             # Load offering fields.
+            dates = meeting['Dates'].split(' to ')
+            self.ingestor['date_start'] = dates[0]
+            self.ingestor['date_end'] = dates[1]
+            
+
             times = meeting['Times']
             for time in filter(lambda t: len(t) > 0, times.split(',')):
                 time_pieces = re.search(
@@ -207,6 +213,7 @@ class Parser(BaseParser):
                         'building': meeting['Building'],
                         'room': meeting['Room']
                     }
+                    # print(self.ingestor)
                     self.ingestor.ingest_meeting(created_section)
 
     def start(self,
@@ -218,7 +225,7 @@ class Parser(BaseParser):
         self.verbosity = verbosity
 
         # Default to hardcoded current year.
-        years = {'2019', '2018', '2017', '2016', '2015'}
+        years = {'2021', '2020', '2019', '2018', '2017', '2016', '2015'}
         terms = {'Spring', 'Fall', 'Summer', 'Intersession'}
 
         years_and_terms = dict_filter_by_dict(
